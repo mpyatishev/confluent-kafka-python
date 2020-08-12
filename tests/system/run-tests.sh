@@ -24,7 +24,7 @@ export PYTHONUNBUFFERED=1
 TEST_PATH=tests/kafkatest/tests/client
 
 LIBRDKAFKA_BRANCH=master
-KAFKA_BRANCH=2.0
+KAFKA_BRANCH=2.5
 REPO=https://github.com/apache/kafka.git
 
 CACHE=$WORKSPACE/cache  # Helps with reusing vagrant cluster
@@ -127,8 +127,7 @@ echo "Checking out $KAFKA_BRANCH ..."
 cd $KAFKA_DIR
 git pull
 git checkout $KAFKA_BRANCH
-gradle
-./gradlew clean systemTestLibs
+./gradlew clean assemble systemTestLibs
 
 # Cached vagrant data
 if [ -d $CACHE ]; then
@@ -155,6 +154,10 @@ fi
 
 echo "Grabbing Vagrantfile.local"
 cp $WORKSPACE/jenkins-common/scripts/system-tests/kafka-system-test/Vagrantfile.local $KAFKA_DIR
+
+# The client system tests only need about 12 workers, rather than
+# the default 30 (or so). This speeds up test start up times.
+sed -i=bak 's/^num_workers.*/num_workers = 12/g' $KAFKA_DIR/Vagrantfile.local
 
 if [ "x$DESTROY_BEFORE" == "xtrue" ]; then
     echo "Destroying Vagrant cluster before running tests..."

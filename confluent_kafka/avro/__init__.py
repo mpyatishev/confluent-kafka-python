@@ -1,3 +1,20 @@
+#!/usr/bin/env python
+#
+# Copyright 2016-2020 Confluent Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 """
     Avro schema registry module: Deals with encoding and decoding of messages with avro schemas
 
@@ -33,7 +50,8 @@ class AvroProducer(Producer):
                    for key, value in config.items() if key.startswith("schema.registry")}
 
         if sr_conf.get("basic.auth.credentials.source") == 'SASL_INHERIT':
-            sr_conf['sasl.mechanisms'] = config.get('sasl.mechanisms', '')
+            # Fallback to plural 'mechanisms' for backward compatibility
+            sr_conf['sasl.mechanism'] = config.get('sasl.mechanism', config.get('sasl.mechanisms', ''))
             sr_conf['sasl.username'] = config.get('sasl.username', '')
             sr_conf['sasl.password'] = config.get('sasl.password', '')
             sr_conf['auto.register.schemas'] = config.get('auto.register.schemas', True)
@@ -111,7 +129,8 @@ class AvroConsumer(Consumer):
                    for key, value in config.items() if key.startswith("schema.registry")}
 
         if sr_conf.get("basic.auth.credentials.source") == 'SASL_INHERIT':
-            sr_conf['sasl.mechanisms'] = config.get('sasl.mechanisms', '')
+            # Fallback to plural 'mechanisms' for backward compatibility
+            sr_conf['sasl.mechanism'] = config.get('sasl.mechanism', config.get('sasl.mechanisms', ''))
             sr_conf['sasl.username'] = config.get('sasl.username', '')
             sr_conf['sasl.password'] = config.get('sasl.password', '')
 

@@ -28,7 +28,8 @@ mkdir -p $fixed_wheelhouse
 
 fixup_wheel_linux () {
 
-    pushd confluent_kafka/.libs
+    # The .libs directory seems to differ between wheel tooling versions.
+    pushd confluent_kafka/.libs || pushd confluent_kafka.libs
 
     # Find mangled librdkafka name
     local mangled=$(echo librdkafka-*.so.1)
@@ -64,7 +65,7 @@ fixup_wheel_linux () {
         ldd $lib
     done
 
-    popd # confluent_kafka/.libs
+    popd # confluent_kafka/.libs or confluent_kafka.libs
 }
 
 
@@ -116,9 +117,10 @@ fixup_wheel () {
         fixup_wheel_macosx
     fi
 
-    zip -r $fixed_whl .
-
     popd # tmpdir
+
+    wheel pack $tmpdir -d $fixed_wheelhouse
+
     rm -rf $tmpdir
 
     echo "Fixed $fixed_whl"
@@ -128,7 +130,7 @@ fixup_wheel () {
 build_patchelf () {
     # Download, build and install patchelf from source.
 
-    curl -l https://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz | tar xzf -
+    curl -l https://releases.nixos.org/patchelf/patchelf-0.9/patchelf-0.9.tar.gz | tar xzf -
     pushd patchelf-0.9
     ./configure
     make -j
@@ -164,6 +166,3 @@ fi
 for wheel in $wheelhouse/*${wheelmatch}*.whl ; do
     fixup_wheel "$wheel"
 done
-
-
-

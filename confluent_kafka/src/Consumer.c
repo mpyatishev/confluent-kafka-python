@@ -977,11 +977,8 @@ static PyObject *Consumer_consume (Handle *self, PyObject *args,
 static PyObject *Consumer_close (Handle *self, PyObject *ignore) {
         CallState cs;
 
-        if (!self->rk) {
-                PyErr_SetString(PyExc_RuntimeError,
-                                "Consumer already closed");
-                return NULL;
-        }
+        if (!self->rk)
+                Py_RETURN_NONE;
 
         CallState_begin(self, &cs);
 
@@ -1271,7 +1268,8 @@ static PyMethodDef Consumer_methods[] = {
           "\n"
           " The returned offsets for each partition is the earliest offset whose\n"
           " timestamp is greater than or equal to the given timestamp in the\n"
-          " corresponding partition.\n"
+          " corresponding partition. If the provided timestamp exceeds that of the\n"
+          " last message in the partition, a value of -1 will be returned.\n"
           "\n"
           "  :param list(TopicPartition) partitions: topic+partitions with timestamps in the TopicPartition.offset field.\n"
           "  :param float timeout: Request timeout. (Seconds)\n"
@@ -1295,7 +1293,6 @@ static PyMethodDef Consumer_methods[] = {
 	  "see :py:func::`poll()` for more info.\n"
 	  "\n"
 	  "  :rtype: None\n"
-      "  :raises: RuntimeError if called on a closed consumer\n"
 	  "\n"
 	},
         { "list_topics", (PyCFunction)list_topics, METH_VARARGS|METH_KEYWORDS,

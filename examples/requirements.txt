@@ -1,0 +1,7 @@
+confluent-kafka[examples]
+fastapi
+pydantic
+uvicorn
+six
+jsonschema
+protobuf
