@@ -266,11 +266,14 @@ class AvroDeserializer(Deserializer):
     """
     __slots__ = ['_reader_schema', '_registry', '_from_dict', '_writer_schemas']
 
-    def __init__(self, schema_str, schema_registry_client, from_dict=None):
+    def __init__(self, schema_registry_client, schema_str=None, from_dict=None):
         self._registry = schema_registry_client
         self._writer_schemas = {}
 
-        self._reader_schema = parse_schema(loads(schema_str))
+        if schema_str is not None:
+            self._reader_schema = parse_schema(loads(schema_str))
+        else:
+            self._reader_schema = None
 
         if from_dict is not None and not callable(from_dict):
             raise ValueError("from_dict must be callable with the signature"
